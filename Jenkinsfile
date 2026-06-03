@@ -20,5 +20,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Test') {
+             steps {
+                sh '''
+                    echo "Check if index.html is present"
+                    test -f /build/index.html
+                    echo "RUNNING TESTS"
+                    CI=true npm test
+                '''
+             }
+
+        }
     }
 }
