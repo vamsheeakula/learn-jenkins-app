@@ -30,6 +30,10 @@ pipeline {
             }
              steps {
                 sh '''
+                    ls -la
+                    cd build
+                    ls -la
+                    cd ..
                     echo "Check if index.html is present"
                     test -f build/index.html
                     echo "RUNNING TESTS"
