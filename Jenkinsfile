@@ -94,10 +94,12 @@ pipeline {
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-stg-output.json
                     node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
                 '''
+
+                script {
+                    env.STG_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json", returnStdout: true)
+                }
             }
-            script {
-                env.STG_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json", returnStdout: true)
-            }
+            
         }
 
         stage('STG E2E') {
