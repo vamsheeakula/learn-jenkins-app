@@ -78,30 +78,6 @@ pipeline {
             }
         }
 
-        stage('Deploy STG') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm install netlify-cli@20.1.1 node-jq
-                    node_modules/.bin/netlify --version
-                    echo "Deploying to Production Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-stg-output.json
-                    node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
-                '''
-
-                script {
-                    env.STG_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json", returnStdout: true)
-                }
-            }
-            
-        }
-
         stage('STG E2E') {
             agent {
                 docker {
@@ -111,11 +87,19 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = "${env.STG_URL}"
+                CI_ENVIRONMENT_URL = "STG ENV to set"
             }
 
             steps {
                 sh '''
+                    node --version
+                    npm install netlify-cli@20.1.1 node-jq
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to Production Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-stg-output.json
+                    node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
+                    CI_ENVIRONMENT_URL=node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
                     npx playwright test  --reporter=html
                 '''
             }
