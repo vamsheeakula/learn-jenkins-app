@@ -99,7 +99,7 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-stg-output.json
                     node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
-                    CI_ENVIRONMENT_URL=node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json
+                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-stg-output.json)
                     npx playwright test  --reporter=html
                 '''
             }
