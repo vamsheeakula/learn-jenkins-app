@@ -8,8 +8,10 @@ pipeline {
     }
 
     stages {
+        
         stage('Docker') {
             steps {
+                sh 'env | grep DOCKER'
                 sh 'docker build -t my-playwright .'
             }
         }
