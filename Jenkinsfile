@@ -12,11 +12,6 @@ pipeline {
         stage('Docker') {
             steps {
                 sh '''
-                    env | grep DOCKER
-                    unset DOCKER_HOST
-                    unset DOCKER_TLS_VERIFY
-                    unset DOCKER_CERT_PATH
-
                     docker build -t my-playwright .
                 '''
             }
