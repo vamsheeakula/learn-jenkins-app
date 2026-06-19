@@ -18,7 +18,7 @@ pipeline {
             }
 
             environment {
-                AWS_S3_BUCKET = 'elasticbeanstalk-eu-west-2-760674690978'
+                AWS_S3_BUCKET = 'my-jenkins-learning-bucket'
             }
 
             steps {
