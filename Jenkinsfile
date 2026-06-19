@@ -21,6 +21,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-vakula-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws --version
+                        echo "Hello S3 from Jenkins!" > index.html
+                        aws cp index.html s3://elasticbeanstalk-eu-west-2-760674690978/index.html
                         aws s3 ls
                     '''
                 }
