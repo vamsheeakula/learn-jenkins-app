@@ -5,9 +5,6 @@ pipeline {
         NETLIFY_SITE_ID = '9464121a-f225-49e8-b4eb-05cc88fafa73'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         CI_ENVIRONMENT_URL = 'https://brilliant-dango-7c276d.netlify.app/'
-        AWS_ACCESS_KEY_ID = 
-        AWS_SECRET_ACCESS_KEY = 
-        AWS_DEFAULT_REGION = 
     }
 
     stages {
