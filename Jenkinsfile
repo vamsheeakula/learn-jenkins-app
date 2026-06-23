@@ -10,29 +10,6 @@ pipeline {
 
     stages {
 
-        stage('Deploy to AWS'){
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args "-u root --entrypoint=''"
-                }
-            }
-
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws-vakula-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    sh '''
-                        aws --version
-                        yum install jq -y
-                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
-                        echo $LATEST_TD_REVISION
-                        aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition $AWS_ECS_TASK_DEFINITION:$LATEST_TD_REVISION
-                        aws ecs wait services-stable --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE
-                    '''
-                }
-                
-            }
-        }
-
         stage('Build') {
             agent {
                 docker {
@@ -50,6 +27,46 @@ pipeline {
                     npm run build
                     ls -la
                 '''
+            }
+        }
+
+        stage('Build Docker Image') {
+
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                }
+            }
+
+            steps {
+                sh '''
+                    amazon-linux-etxras install docker
+                    docker build -t myjenkinsapp .
+                '''
+            }
+        }
+
+        stage('Deploy to AWS'){
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "-u root --entrypoint=''"
+                }
+            }
+
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'my-aws-vakula-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws --version
+                        yum install jq -y
+                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
+                        echo $LATEST_TD_REVISION
+                        aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition $AWS_ECS_TASK_DEFINITION:$LATEST_TD_REVISION
+                        #aws ecs wait services-stable --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE
+                    '''
+                }
+                
             }
         }
         
