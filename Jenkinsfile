@@ -8,6 +8,7 @@ pipeline {
         AWS_ECS_CLUSTER = "learn-jenkinsapp-cluster-prod"
         AWS_ECS_SERVICE = "LearnJenkinsApp-Service-Prod"
         AWS_ECS_TASK_DEFINITION = "LearnJenkinsApp-TaskDefinition-Prod"
+        AWS_DOCKER_REGISTRY = "760674690978.dkr.ecr.eu-west-2.amazonaws.com"
     }
 
     stages {
@@ -43,9 +44,13 @@ pipeline {
             }
 
             steps {
-                sh '''
-                    docker build -t $APP_NAME:$REACT_APP_VERSION .
-                '''
+                withCredentials([usernamePassword(credentialsId: 'my-aws-vakula-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws ecr get-login-password | docker login AWS --password-stdin $AWS_DOCKER_REGISTRY
+                        docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION .
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
+                    '''
+                }
             }
         }
 
