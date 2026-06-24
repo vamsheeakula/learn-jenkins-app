@@ -49,6 +49,8 @@ pipeline {
                         aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
                         docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION .
                         docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
+
+                        docker image inspect $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION | jq '.[0].Architecture'
                     '''
                 }
             }
